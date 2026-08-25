@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estructura: Niveles o Estratos de Diseño — Sistemas Operativos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c1f22;
+    --paper:#f3f5f2;
+    --l5:#dfe9de;   /* aplicaciones - superficie */
+    --l4:#a9c9b8;   /* shell */
+    --l3:#5f9a89;   /* sistema de archivos / E-S */
+    --l2:#2f6f66;   /* nucleo */
+    --l1:#123b36;   /* hardware - base */
+    --accent:#c96a3e;
+    --line: rgba(18,24,22,0.12);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+  }
+
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    margin:0;
+    font-weight:600;
+  }
+
+  .mono{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:8vh 8vw 6vh;
+    overflow:hidden;
+    background:linear-gradient(180deg, #fbfcfa 0%, var(--l5) 100%);
+  }
+
+  .hero-eyebrow{
+    font-size:0.75rem;
+    color:var(--l2);
+    margin-bottom:1.2rem;
+  }
+
+  .hero h1{
+    font-size:clamp(2.2rem, 5.6vw, 4.6rem);
+    line-height:1.04;
+    max-width:16ch;
+    color:var(--l1);
+  }
+
+  .hero h1 em{
+    font-style:italic;
+    font-weight:400;
+    color:var(--accent);
+  }
+
+  .hero p{
+    max-width:48ch;
+    margin-top:1.6rem;
+    font-size:1.05rem;
+    color:#2c3a35;
+  }
+
+  .hero-scroll{
+    margin-top:3rem;
+    font-size:0.75rem;
+    color:var(--l2);
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+  }
+
+  .hero-scroll .arrow{
+    display:inline-block;
+    animation: bob 1.8s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(6px);}
+  }
+
+  .strata-illustration{
+    margin-top:4vh;
+    width:100%;
+    max-width:920px;
+  }
+
+  /* ---------- LAYOUT WITH SIDE RULER ---------- */
+  .body-wrap{
+    display:grid;
+    grid-template-columns:64px 1fr;
+  }
+
+  .ruler{
+    position:sticky;
+    top:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border-right:1px solid var(--line);
+    background:var(--paper);
+  }
+
+  .ruler-track{
+    position:relative;
+    width:2px;
+    height:70vh;
+    background:var(--line);
+  }
+
+  .ruler-dot{
+    position:absolute;
+    left:50%;
+    transform:translate(-50%, -50%);
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--line);
+    transition: all .35s ease;
+    cursor:pointer;
+  }
+
+  .ruler-dot.active{
+    background:var(--accent);
+    border-color:var(--accent);
+    width:14px;
+    height:14px;
+  }
+
+  main{
+    padding:0 8vw;
+  }
+
+  /* ---------- STRATUM SECTIONS ---------- */
+  .stratum{
+    min-height:92vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:10vh 0;
+    border-bottom:1px solid var(--line);
+    opacity:0.35;
+    transform:translateY(14px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .stratum.in-view{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .stratum:last-of-type{border-bottom:none;}
+
+  .stratum-head{
+    display:flex;
+    align-items:baseline;
+    gap:1.2rem;
+    margin-bottom:1.4rem;
+  }
+
+  .stratum-num{
+    font-family:'Fraunces', serif;
+    font-size:1rem;
+    color:var(--accent);
+  }
+
+  .stratum-label{
+    font-size:0.72rem;
+    color:var(--l2);
+  }
+
+  .stratum-grid{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap:4rem;
+    align-items:center;
+  }
+
+  .stratum h2{
+    font-size:clamp(1.9rem, 3.6vw, 3rem);
+    margin-bottom:1rem;
+  }
+
+  .stratum .tagline{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:1.15rem;
+    color:var(--l2);
+    margin-bottom:1rem;
+  }
+
+  .stratum p.desc{
+    font-size:1rem;
+    color:#243530;
+    max-width:44ch;
+  }
+
+  .stratum ul{
+    margin-top:1.4rem;
+    padding:0;
+    list-style:none;
+  }
+  .stratum ul li{
+    font-size:0.88rem;
+    padding:0.5rem 0;
+    border-top:1px solid var(--line);
+    color:#33453f;
+  }
+  .stratum ul li:last-child{border-bottom:1px solid var(--line);}
+
+  .stratum-art{
+    width:100%;
+    aspect-ratio:1/1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  /* ---------- FOOTER / SUMMARY ---------- */
+  footer{
+    padding:10vh 8vw 8vh;
+    background:var(--l1);
+    color:var(--l5);
+  }
+  footer h3{
+    color:var(--l5);
+    font-size:1.6rem;
+    max-width:32ch;
+    margin-bottom:1.5rem;
+  }
+  footer p{
+    max-width:54ch;
+    color:#b9d0c7;
+    font-size:0.95rem;
+  }
+  .stack-diagram{
+    margin-top:3rem;
+    display:flex;
+    flex-direction:column;
+    max-width:540px;
+  }
+  .stack-row{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    padding:0.85rem 1rem;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    border-left:3px solid var(--accent);
+    background:rgba(243,245,242,0.05);
+    margin-bottom:2px;
+  }
+  .stack-row span.k{color:var(--l5); font-weight:500; width:11rem; flex-shrink:0;}
+  .stack-row span.v{color:#9fb8ae;}
+
+  .credit{
+    margin-top:4rem;
+    font-size:0.72rem;
+    color:#6f8b81;
+    border-top:1px solid rgba(243,245,242,0.15);
+    padding-top:1.2rem;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 820px){
+    .body-wrap{grid-template-columns:1fr;}
+    .ruler{display:none;}
+    main{padding:0 6vw;}
+    .stratum-grid{grid-template-columns:1fr; gap:2rem;}
+    .stratum-art{order:-1; max-width:220px; margin:0 auto;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .stratum{transition:none; opacity:1; transform:none;}
+    .hero-scroll .arrow{animation:none;}
+  }
+
+  :focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:3px;
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-eyebrow mono">Sistemas Operativos · Unidad 1</div>
+  <h1>Un sistema operativo<br>se construye <em>por capas</em>,<br>del silicio al usuario.</h1>
+  <p>Cada nivel oculta la complejidad del que está debajo y ofrece servicios
+     al que está encima. Del hardware físico hasta los programas que usa la
+     persona frente a la pantalla, todo se organiza en estratos.</p>
+  <div class="hero-scroll"><span class="arrow">↓</span> Recorre los niveles</div>
+
+  <svg class="strata-illustration" viewBox="0 0 920 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="0" y="0" width="920" height="42" fill="#dfe9de"/>
+    <rect x="0" y="42" width="920" height="42" fill="#a9c9b8"/>
+    <rect x="0" y="84" width="920" height="42" fill="#5f9a89"/>
+    <rect x="0" y="126" width="920" height="50" fill="#2f6f66"/>
+    <rect x="0" y="176" width="920" height="84" fill="#123b36"/>
+    <line x1="0" y1="42" x2="920" y2="42" stroke="#f3f5f2" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+    <line x1="0" y1="84" x2="920" y2="84" stroke="#f3f5f2" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+    <line x1="0" y1="126" x2="920" y2="126" stroke="#f3f5f2" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+    <line x1="0" y1="176" x2="920" y2="176" stroke="#f3f5f2" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+    <text x="16" y="27" font-family="IBM Plex Mono, monospace" font-size="11" fill="#2c3a35" letter-spacing="1">APLICACIONES</text>
+    <text x="16" y="69" font-family="IBM Plex Mono, monospace" font-size="11" fill="#1c2b26" letter-spacing="1">SHELL</text>
+    <text x="16" y="111" font-family="IBM Plex Mono, monospace" font-size="11" fill="#dfe9de" letter-spacing="1">SIST. DE ARCHIVOS / E-S</text>
+    <text x="16" y="157" font-family="IBM Plex Mono, monospace" font-size="11" fill="#dfe9de" letter-spacing="1">NÚCLEO (KERNEL)</text>
+    <text x="16" y="225" font-family="IBM Plex Mono, monospace" font-size="11" fill="#a9c9b8" letter-spacing="1">HARDWARE — base física</text>
+  </svg>
+</section>
+
+<div class="body-wrap">
+  <aside class="ruler">
+    <div class="ruler-track" id="rulerTrack">
+      <div class="ruler-dot" data-target="capa-aplicaciones" style="top:5%"></div>
+      <div class="ruler-dot" data-target="capa-shell" style="top:27%"></div>
+      <div class="ruler-dot" data-target="capa-archivos" style="top:50%"></div>
+      <div class="ruler-dot" data-target="capa-nucleo" style="top:73%"></div>
+      <div class="ruler-dot" data-target="capa-hardware" style="top:95%"></div>
+    </div>
+  </aside>
+
+  <main>
+
+    <section class="stratum" id="capa-aplicaciones">
+      <div class="stratum-head">
+        <span class="stratum-num mono">Nivel 4</span>
+        <span class="stratum-label mono">Lo que ve el usuario</span>
+      </div>
+      <div class="stratum-grid">
+        <div>
+          <h2>Aplicaciones</h2>
+          <p class="tagline">La superficie: navegadores, editores, juegos.</p>
+          <p class="desc">Es el estrato más visible. Aquí viven los programas que
+             usa directamente la persona: un procesador de texto, un navegador,
+             una hoja de cálculo. No conocen el hardware; solo hablan con el
+             sistema operativo a través de sus servicios.</p>
+          <ul>
+            <li>Programas de usuario final</li>
+            <li>Interfaces gráficas (GUI)</li>
+            <li>Usan servicios del sistema, no el hardware directo</li>
+          </ul>
+        </div>
+        <div class="stratum-art">
+          <svg viewBox="0 0 200 200" width="100%">
+            <rect x="24" y="30" width="152" height="112" rx="8" fill="#dfe9de" stroke="#2f6f66" stroke-width="2"/>
+            <rect x="24" y="30" width="152" height="18" rx="8" fill="#5f9a89"/>
+            <circle cx="36" cy="39" r="3" fill="#f3f5f2"/>
+            <circle cx="46" cy="39" r="3" fill="#f3f5f2"/>
+            <circle cx="56" cy="39" r="3" fill="#f3f5f2"/>
+            <rect x="38" y="64" width="90" height="8" rx="2" fill="#2f6f66"/>
+            <rect x="38" y="80" width="124" height="6" rx="2" fill="#a9c9b8"/>
+            <rect x="38" y="94" width="100" height="6" rx="2" fill="#a9c9b8"/>
+            <rect x="38" y="112" width="46" height="18" rx="4" fill="#c96a3e"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="stratum" id="capa-shell">
+      <div class="stratum-head">
+        <span class="stratum-num mono">Nivel 3</span>
+        <span class="stratum-label mono">Intérprete de comandos</span>
+      </div>
+      <div class="stratum-grid">
+        <div>
+          <h2>Shell</h2>
+          <p class="tagline">El traductor entre la persona y el núcleo.</p>
+          <p class="desc">Recibe las instrucciones del usuario —ya sea por texto
+             (una terminal) o por clics en una interfaz gráfica— y las convierte
+             en llamadas que el núcleo puede ejecutar. Es la puerta de entrada
+             al sistema.</p>
+          <ul>
+            <li>Intérprete de línea de comandos (CLI)</li>
+            <li>Entorno gráfico como capa equivalente</li>
+            <li>Traduce órdenes del usuario a llamadas al sistema</li>
+          </ul>
+        </div>
+        <div class="stratum-art">
+          <svg viewBox="0 0 200 200" width="100%">
+            <rect x="30" y="40" width="140" height="100" rx="6" fill="#123b36"/>
+            <text x="44" y="66" font-family="IBM Plex Mono, monospace" font-size="13" fill="#a9c9b8">&gt; _</text>
+            <rect x="44" y="80" width="60" height="6" fill="#5f9a89"/>
+            <rect x="44" y="94" width="90" height="6" fill="#2f6f66"/>
+            <rect x="44" y="108" width="40" height="6" fill="#5f9a89"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="stratum" id="capa-archivos">
+      <div class="stratum-head">
+        <span class="stratum-num mono">Nivel 2</span>
+        <span class="stratum-label mono">Gestión de E/S y archivos</span>
+      </div>
+      <div class="stratum-grid">
+        <div>
+          <h2>Sistema de archivos y E/S</h2>
+          <p class="tagline">Organiza los datos y habla con los dispositivos.</p>
+          <p class="desc">Administra cómo se guardan, leen y organizan los archivos
+             en el almacenamiento, y controla la comunicación con los dispositivos
+             de entrada y salida: teclado, disco, pantalla, red.</p>
+          <ul>
+            <li>Organización de archivos y carpetas</li>
+            <li>Controladores de dispositivos (drivers)</li>
+            <li>Manejo de entrada/salida (E/S)</li>
+          </ul>
+        </div>
+        <div class="stratum-art">
+          <svg viewBox="0 0 200 200" width="100%">
+            <path d="M30 60 h50 l10 14 h80 v70 a6 6 0 0 1 -6 6 h-128 a6 6 0 0 1 -6 -6 z" fill="#5f9a89" stroke="#123b36" stroke-width="2"/>
+            <rect x="30" y="54" width="50" height="14" rx="3" fill="#2f6f66"/>
+            <rect x="46" y="98" width="108" height="8" fill="#dfe9de"/>
+            <rect x="46" y="114" width="80" height="8" fill="#dfe9de"/>
+            <rect x="46" y="130" width="94" height="8" fill="#dfe9de"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="stratum" id="capa-nucleo">
+      <div class="stratum-head">
+        <span class="stratum-num mono">Nivel 1</span>
+        <span class="stratum-label mono">El corazón del sistema</span>
+      </div>
+      <div class="stratum-grid">
+        <div>
+          <h2 style="color:var(--l5)">Núcleo (Kernel)</h2>
+          <p class="tagline" style="color:var(--l4)">El único que toca el hardware directamente.</p>
+          <p class="desc" style="color:#cfe3da;">Gestiona los procesos (qué se ejecuta y cuándo), la memoria
+             (qué programa usa qué espacio) y la comunicación entre ellos.
+             Todas las demás capas dependen de sus servicios, pero nunca acceden
+             al hardware sin pasar por él.</p>
+          <ul>
+            <li style="color:#cfe3da; border-color:rgba(243,245,242,0.18);">Planificación de procesos (CPU)</li>
+            <li style="color:#cfe3da; border-color:rgba(243,245,242,0.18);">Administración de memoria</li>
+            <li style="color:#cfe3da; border-color:rgba(243,245,242,0.18);">Sincronización y comunicación entre procesos</li>
+          </ul>
+        </div>
+        <div class="stratum-art">
+          <svg viewBox="0 0 200 200" width="100%">
+            <rect x="70" y="70" width="60" height="60" rx="6" fill="#5f9a89"/>
+            <g stroke="#a9c9b8" stroke-width="4">
+              <line x1="100" y1="70" x2="100" y2="46"/>
+              <line x1="100" y1="130" x2="100" y2="154"/>
+              <line x1="70" y1="100" x2="46" y2="100"/>
+              <line x1="130" y1="100" x2="154" y2="100"/>
+              <line x1="82" y1="82" x2="64" y2="64"/>
+              <line x1="118" y1="82" x2="136" y2="64"/>
+              <line x1="82" y1="118" x2="64" y2="136"/>
+              <line x1="118" y1="118" x2="136" y2="136"/>
+            </g>
+            <rect x="88" y="88" width="24" height="24" rx="3" fill="#dfe9de"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="stratum" id="capa-hardware">
+      <div class="stratum-head">
+        <span class="stratum-num mono">Nivel 0</span>
+        <span class="stratum-label mono">Base física</span>
+      </div>
+      <div class="stratum-grid">
+        <div>
+          <h2 style="color:var(--l5)">Hardware</h2>
+          <p class="tagline" style="color:var(--l4)">El estrato más profundo: silicio y circuitos.</p>
+          <p class="desc" style="color:#cfe3da;">CPU, memoria RAM, disco, tarjetas de red y demás componentes
+             físicos. No entiende procesos ni archivos, solo instrucciones
+             de máquina. Es el cimiento sobre el que se apoya cada nivel de
+             software que está encima.</p>
+          <ul>
+            <li style="color:#cfe3da; border-color:rgba(243,245,242,0.18);">CPU, memoria y buses</li>
+            <li style="color:#cfe3da; border-color:rgba(243,245,242,0.18);">Dispositivos de almacenamiento</li>
+            <li style="color:#cfe3da; border-color:rgba(243,245,242,0.18);">Periféricos de entrada y salida</li>
+          </ul>
+        </div>
+        <div class="stratum-art">
+          <svg viewBox="0 0 200 200" width="100%">
+            <rect x="50" y="50" width="100" height="100" rx="6" fill="#0d2a26" stroke="#5f9a89" stroke-width="2"/>
+            <rect x="76" y="76" width="48" height="48" fill="#2f6f66"/>
+            <g stroke="#5f9a89" stroke-width="3">
+              <line x1="60" y1="66" x2="50" y2="66"/>
+              <line x1="60" y1="84" x2="50" y2="84"/>
+              <line x1="60" y1="102" x2="50" y2="102"/>
+              <line x1="60" y1="120" x2="50" y2="120"/>
+              <line x1="140" y1="66" x2="150" y2="66"/>
+              <line x1="140" y1="84" x2="150" y2="84"/>
+              <line x1="140" y1="102" x2="150" y2="102"/>
+              <line x1="140" y1="120" x2="150" y2="120"/>
+              <line x1="66" y1="50" x2="66" y2="40"/>
+              <line x1="84" y1="50" x2="84" y2="40"/>
+              <line x1="102" y1="50" x2="102" y2="40"/>
+              <line x1="120" y1="50" x2="120" y2="40"/>
+              <line x1="66" y1="150" x2="66" y2="160"/>
+              <line x1="84" y1="150" x2="84" y2="160"/>
+              <line x1="102" y1="150" x2="102" y2="160"/>
+              <line x1="120" y1="150" x2="120" y2="160"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer id="capa-resumen">
+  <h3>Cada capa oculta la complejidad de la de abajo.</h3>
+  <p>Esta organización se llama <strong>estructura por niveles o jerárquica</strong>:
+     cada estrato solo se comunica con el que tiene justo encima y justo debajo,
+     usando servicios bien definidos. Así, un error o cambio en una capa no
+     obliga a rediseñar todo el sistema.</p>
+
+  <div class="stack-diagram">
+    <div class="stack-row"><span class="k">Nivel 4 — Aplicaciones</span><span class="v">programas de usuario</span></div>
+    <div class="stack-row"><span class="k">Nivel 3 — Shell</span><span class="v">intérprete de comandos</span></div>
+    <div class="stack-row"><span class="k">Nivel 2 — Archivos / E-S</span><span class="v">almacenamiento y dispositivos</span></div>
+    <div class="stack-row"><span class="k">Nivel 1 — Núcleo</span><span class="v">procesos y memoria</span></div>
+    <div class="stack-row"><span class="k">Nivel 0 — Hardware</span><span class="v">CPU, RAM, dispositivos físicos</span></div>
+  </div>
+
+  <p class="credit mono">1.5 Estructura: niveles o estratos de diseño · Sistemas Operativos</p>
+</footer>
+
+<script>
+  const strata = document.querySelectorAll('.stratum');
+  const dots = document.querySelectorAll('.ruler-dot');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        dots.forEach(d => d.classList.toggle('active', d.dataset.target === entry.target.id));
+      }
+    });
+  }, { threshold: 0.4 });
+
+  strata.forEach(s => observer.observe(s));
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      document.getElementById(dot.dataset.target).scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  });
+</script>
+
+</body>
+</html>
