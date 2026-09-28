@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crontab vs Demonio</title>
+<style>
+:root{--bg:#f6f7fb;--fg:#1c2233;--card:#fff;--ac:#2f6df6;--mut:#5b6478;--code:#0f172a;--codefg:#e2e8f0;--bd:#dfe3ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1420;--fg:#e8ecf5;--card:#182033;--ac:#6b9bff;--mut:#9aa5bd;--code:#070b14;--bd:#2a3550}}
+:root[data-theme="dark"]{--bg:#0f1420;--fg:#e8ecf5;--card:#182033;--ac:#6b9bff;--mut:#9aa5bd;--code:#070b14;--bd:#2a3550}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column}
+.deck{flex:1;overflow:hidden;position:relative}
+.slide{display:none;height:100%;overflow-y:auto;padding:28px min(6vw,64px);box-sizing:border-box;max-width:1000px;margin:0 auto}
+.slide.on{display:block}
+h1{font-size:clamp(28px,5vw,46px);margin:.2em 0}
+h2{font-size:clamp(22px,3.5vw,32px);margin:0 0 .6em;color:var(--ac)}
+p,li{font-size:clamp(16px,2.2vw,20px);line-height:1.5}
+.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 18px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+pre{background:var(--code);color:var(--codefg);padding:14px;border-radius:10px;overflow-x:auto;font-size:clamp(13px,1.8vw,16px);line-height:1.5}
+code{font-family:ui-monospace,Menlo,Consolas,monospace}
+p code,li code{background:var(--card);border:1px solid var(--bd);padding:1px 6px;border-radius:5px;font-size:.9em}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:clamp(14px,1.9vw,18px)}
+th,td{border:1px solid var(--bd);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--ac);color:#fff}
+.tag{display:inline-block;background:var(--ac);color:#fff;border-radius:99px;padding:2px 12px;font-size:14px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--bd);background:var(--card)}
+button{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 18px;font-size:16px;cursor:pointer}
+pre{position:relative}.cp{position:absolute;top:6px;right:6px;padding:3px 10px;font-size:12px;background:var(--ac);opacity:.9}
+</style></head><body>
+<div class="deck" id="deck">
+
+<section class="slide on">
+<span class="tag">Linux · Ubuntu</span>
+<h1>Crontab vs Demonio</h1>
+<p class="mut">Dos formas de automatizar tareas en Linux: ¿cuándo usar cada una?</p>
+<div class="card"><p>Temario: qué es cada uno · sintaxis · comparación · cuándo elegir · tutorial paso a paso para crear tu primer demonio.</p></div>
+</section>
+
+<section class="slide"><h2>¿Qué es crontab?</h2>
+<p><b>cron</b> es un servicio que revisa cada minuto una lista de tareas programadas. <b>crontab</b> es el archivo (y el comando) donde cada usuario escribe esa lista.</p>
+<div class="grid">
+<div class="card"><b>Idea clave</b><p>"Ejecuta este comando en esta fecha/hora". El programa <u>nace, trabaja y termina</u>.</p></div>
+<div class="card"><b>Ejemplos de uso</b><p>Respaldos nocturnos, limpiar archivos temporales, enviar reportes, renovar certificados.</p></div>
+</div>
+<pre>crontab -e   # editar tus tareas
+crontab -l   # ver tus tareas</pre></section>
+
+<section class="slide"><h2>Sintaxis de crontab</h2>
+<pre>┌ minuto (0-59)
+│ ┌ hora (0-23)
+│ │ ┌ día del mes (1-31)
+│ │ │ ┌ mes (1-12)
+│ │ │ │ ┌ día de la semana (0-7, 0 y 7 = domingo)
+* * * * *  comando</pre>
+<pre>*/5 * * * *   /home/ana/script.sh     # cada 5 minutos
+0 2 * * *     /home/ana/respaldo.sh    # todos los días a las 2:00
+30 8 * * 1    /home/ana/reporte.sh     # lunes a las 8:30
+@reboot       /home/ana/inicio.sh      # al arrancar el sistema</pre>
+<p class="mut">Límite: la mínima frecuencia es 1 minuto.</p></section>
+
+<section class="slide"><h2>¿Qué es un demonio (daemon)?</h2>
+<p>Un <b>demonio</b> es un proceso que corre <u>en segundo plano, de forma continua</u>, sin ventana ni usuario interactuando. Su nombre suele terminar en "d".</p>
+<div class="grid">
+<div class="card"><b>Ejemplos reales</b><p><code>sshd</code> (conexiones SSH), <code>nginx</code> (web), <code>mysqld</code> (base de datos), <code>cron</code> (¡el propio cron es un demonio!).</p></div>
+<div class="card"><b>En Ubuntu</b><p>Lo gestiona <b>systemd</b>: lo inicia con el sistema, lo reinicia si falla y guarda sus logs.</p></div>
+</div>
+<p>Idea clave: "quédate corriendo y esperando trabajo".</p></section>
+
+<section class="slide"><h2>Comparación</h2>
+<div class="tw"><table>
+<tr><th></th><th>Crontab</th><th>Demonio</th></tr>
+<tr><td>Ejecución</td><td>Por horario, y termina</td><td>Continua, siempre activo</td></tr>
+<tr><td>Frecuencia mínima</td><td>1 minuto</td><td>Tiempo real (milisegundos)</td></tr>
+<tr><td>Consumo</td><td>Solo mientras corre</td><td>Ocupa memoria todo el tiempo</td></tr>
+<tr><td>Si falla</td><td>Espera a la próxima hora programada</td><td>systemd lo reinicia (<code>Restart=always</code>)</td></tr>
+<tr><td>Estado / logs</td><td>Hay que redirigir salida a mano</td><td><code>systemctl status</code> y <code>journalctl</code></td></tr>
+<tr><td>Dificultad</td><td>Muy fácil (1 línea)</td><td>Media (script + archivo .service)</td></tr>
+<tr><td>Arranque al boot</td><td>Solo con <code>@reboot</code></td><td>Nativo con <code>enable</code></td></tr>
+</table></div></section>
+
+<section class="slide"><h2>¿Cuándo usar cada uno?</h2>
+<div class="grid">
+<div class="card"><b>✅ Usa crontab si…</b><ul><li>La tarea ocurre a horas fijas</li><li>Corre y termina (respaldo, limpieza)</li><li>Basta con precisión de 1 minuto</li></ul></div>
+<div class="card"><b>✅ Usa un demonio si…</b><ul><li>Debe responder al instante (servidor, bot)</li><li>Escucha eventos, puertos o colas</li><li>Necesitas reinicio automático y monitoreo</li></ul></div>
+</div>
+<div class="card"><b>Regla práctica:</b> ¿"cada cierto tiempo hago algo"? → crontab. ¿"siempre debo estar atento"? → demonio.</div></section>
+
+<section class="slide"><h2>Ventajas y desventajas</h2>
+<div class="grid">
+<div class="card"><b>Crontab</b><p>👍 Simple, ligero, universal.<br>👎 Sin reinicio si falla, sin tiempo real, riesgo de solaparse si una tarea tarda más que el intervalo, entorno mínimo (PATH limitado).</p></div>
+<div class="card"><b>Demonio</b><p>👍 Tiempo real, supervisado, logs integrados, control con <code>systemctl</code>.<br>👎 Más configuración, consume recursos constantemente, un error puede dejarlo en bucle.</p></div>
+</div>
+<p class="mut">Alternativa moderna: los <i>systemd timers</i> combinan horarios (como cron) con la gestión de systemd.</p></section>
+
+<section class="slide"><h2>Tutorial: tu primer demonio en Ubuntu</h2>
+<p><b>Objetivo:</b> un script que se ejecuta solo al encender Ubuntu y se queda escribiendo "Sigo vivo" con la hora en un archivo de tu carpeta personal, cada 5 segundos.</p>
+<div class="card"><b>Necesitas:</b> Ubuntu, una terminal y permisos de <code>sudo</code>. Todo se hace desde la terminal.</div>
+<div class="card"><b>Diferencia con crontab:</b> con <code>@reboot</code> el script se ejecuta una vez al arrancar y termina. Con un demonio el script <u>se queda corriendo</u> y, si se cae, el sistema lo levanta de nuevo.</div>
+<div class="card"><b>Pasos:</b> 1) Crear el script · 2) Dar permisos · 3) Crear el servicio · 4) Activarlo · 5) Verificar · 6) Reiniciar y comprobar · 7) Desactivarlo</div></section>
+
+<section class="slide"><h2>Paso 1: crear el script y llamarlo mi_demonio.sh</h2>
+<p>Copia y pega todo este bloque en la terminal. Se crea en tu carpeta personal:</p>
+<pre>tee ~/mi_demonio.sh &gt; /dev/null &lt;&lt; 'EOF'
+#!/bin/bash
+# Escribe un mensaje con la hora cada 5 segundos
+while true; do
+  echo "Sigo vivo: $(date)" &gt;&gt; $HOME/mensaje_demonio.txt
+  sleep 5
+done
+EOF</pre>
+<p class="mut">El <code>while true</code> es lo que lo mantiene corriendo para siempre.</p></section>
+
+<section class="slide"><h2>Paso 2: dar permisos de ejecución</h2>
+<p>Para que Linux sepa que este archivo se puede ejecutar como un programa, corre este comando:</p>
+<pre>chmod +x ~/mi_demonio.sh</pre>
+<p>Pruébalo a mano (detenlo con <b>Ctrl+C</b>) y, en otra terminal, mira el resultado:</p>
+<pre>~/mi_demonio.sh
+cat ~/mensaje_demonio.txt</pre></section>
+
+<section class="slide"><h2>Paso 3: crear el servicio</h2>
+<p>El servicio le dice a Ubuntu (systemd) cómo tratar tu script como demonio. Copia y pega todo el bloque:</p>
+<pre>sudo tee /etc/systemd/system/mi-demonio.service &gt; /dev/null &lt;&lt; EOF
+[Unit]
+Description=Mi primer demonio
+
+[Service]
+User=$USER
+ExecStart=$HOME/mi_demonio.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF</pre>
+<div class="card"><p><code>User</code> = quién lo ejecuta (tú) · <code>ExecStart</code> = qué ejecutar · <code>Restart=always</code> = reiniciar si se cae · <code>WantedBy</code> = arrancar con el sistema.</p></div>
+<p class="mut">Verifica que quedó bien escrito con <code>cat /etc/systemd/system/mi-demonio.service</code>: debe mostrar tu usuario y tu ruta (por ejemplo /home/miguel).</p></section>
+
+<section class="slide"><h2>Paso 4: activar el demonio</h2>
+<pre>sudo systemctl daemon-reload
+sudo systemctl enable --now mi-demonio</pre>
+<p><code>daemon-reload</code> hace que systemd lea el archivo nuevo. <code>enable --now</code> lo inicia ahora y lo deja configurado para iniciar en cada arranque.</p></section>
+
+<section class="slide"><h2>Paso 5: verificar que funciona</h2>
+<pre>systemctl status mi-demonio      # debe decir "active (running)"
+tail -f ~/mensaje_demonio.txt    # líneas nuevas cada 5 s (Ctrl+C sale)</pre>
+<p><b>Prueba de fuego:</b> mátalo y mira cómo revive.</p>
+<pre>sudo pkill -f mi_demonio.sh
+sleep 2
+systemctl status mi-demonio      # sigue activo: systemd lo reinició</pre></section>
+
+<section class="slide"><h2>Paso 6: reiniciar y comprobar</h2>
+<pre>sudo reboot</pre>
+<p>Cuando Ubuntu vuelva a encender, abre la terminal y ejecuta:</p>
+<pre>systemctl status mi-demonio
+tail ~/mensaje_demonio.txt</pre>
+<p class="mut">Verás mensajes con la hora del arranque: el demonio se inició solo, sin que hicieras nada.</p></section>
+
+<section class="slide"><h2>Paso 7: desactivar el demonio</h2>
+<p>Para que no se siga ejecutando al encender la computadora:</p>
+<pre>sudo systemctl disable --now mi-demonio</pre>
+<p>Si además quieres borrar todo:</p>
+<pre>sudo rm /etc/systemd/system/mi-demonio.service
+sudo systemctl daemon-reload
+rm ~/mi_demonio.sh ~/mensaje_demonio.txt</pre></section>
+
+<section class="slide"><h2>Comandos del ejemplo (1/2): script y archivos</h2><div class="tw"><table>
+<tr><th>Comando</th><th>¿Para qué sirve?</th></tr>
+<tr><td><code>#!/bin/bash</code></td><td>Primera línea del script: indica que lo ejecute el intérprete Bash.</td></tr>
+<tr><td><code>while true; do ... done</code></td><td>Bucle infinito: repite lo de adentro sin parar. Es lo que mantiene vivo al demonio.</td></tr>
+<tr><td><code>echo "texto"</code></td><td>Imprime un texto.</td></tr>
+<tr><td><code>&gt;&gt; archivo</code></td><td>Agrega lo escrito al final del archivo (con un solo <code>&gt;</code> lo sobrescribiría).</td></tr>
+<tr><td><code>$(date)</code></td><td>Se reemplaza por la fecha y hora actuales.</td></tr>
+<tr><td><code>$HOME  y  ~</code></td><td>Tu carpeta personal (por ejemplo /home/miguel).</td></tr>
+<tr><td><code>sleep 5</code></td><td>Pausa de 5 segundos. Sin ella el bucle escribiría a toda velocidad.</td></tr>
+<tr><td><code>tee archivo</code></td><td>Guarda en un archivo el texto que recibe. Con <code>sudo</code> puede escribir en carpetas protegidas.</td></tr>
+<tr><td><code>&lt;&lt; 'EOF' ... EOF</code></td><td>Todo el texto entre los dos EOF se envía como contenido del archivo. Con comillas se guarda tal cual; sin comillas, el shell cambia <code>$USER</code> y <code>$HOME</code> por tus valores.</td></tr>
+<tr><td><code>&gt; /dev/null</code></td><td>Descarta la copia que <code>tee</code> mostraría en pantalla, para no ensuciarla.</td></tr>
+<tr><td><code>chmod +x archivo</code></td><td>Le da permiso de ejecución al archivo, para poder correrlo como programa.</td></tr>
+<tr><td><code>cat archivo</code></td><td>Muestra en pantalla el contenido de un archivo.</td></tr>
+</table></div></section>
+
+<section class="slide"><h2>Comandos del ejemplo (2/2): servicio y control</h2><div class="tw"><table>
+<tr><th>Comando</th><th>¿Para qué sirve?</th></tr>
+<tr><td><code>sudo</code></td><td>Ejecuta el comando como administrador. Hace falta para tocar <code>/etc/systemd</code> y controlar servicios.</td></tr>
+<tr><td><code>systemctl daemon-reload</code></td><td>Le pide a systemd que vuelva a leer los archivos <code>.service</code>. Hay que usarlo cada vez que crees o cambies uno.</td></tr>
+<tr><td><code>systemctl enable</code></td><td>Configura el demonio para que arranque solo al encender el equipo.</td></tr>
+<tr><td><code>--now</code></td><td>Añadido a <code>enable</code>, además lo inicia en ese momento. Sin él, empezaría hasta el próximo reinicio.</td></tr>
+<tr><td><code>systemctl status</code></td><td>Muestra si el demonio está activo, desde cuándo y sus últimas líneas de log.</td></tr>
+<tr><td><code>tail -f archivo</code></td><td>Muestra las últimas líneas de un archivo y sigue mostrando las nuevas en vivo (Ctrl+C para salir).</td></tr>
+<tr><td><code>pkill -f mi_demonio.sh</code></td><td>Termina los procesos cuyo comando contiene ese nombre. Sirve para simular una falla.</td></tr>
+<tr><td><code>sudo reboot</code></td><td>Reinicia la computadora.</td></tr>
+<tr><td><code>systemctl disable --now</code></td><td>Quita el arranque automático (<code>disable</code>) y lo detiene ahora (<code>--now</code>).</td></tr>
+<tr><td><code>rm archivo</code></td><td>Borra un archivo.</td></tr>
+<tr><td><code># texto</code></td><td>Comentario: Linux lo ignora. Sirve para explicar el código.</td></tr>
+</table></div></section>
+
+<section class="slide"><h2>Resumen</h2>
+<ul>
+<li><b>Crontab</b>: tareas programadas que se ejecutan y terminan.</li>
+<li><b>Demonio</b>: proceso siempre activo, gestionado por systemd.</li>
+<li>Horario fijo → crontab. Atención constante → demonio.</li>
+<li>Crear un demonio = script + archivo <code>.service</code> + <code>systemctl enable --now</code>.</li>
+</ul>
+<p class="mut">Para practicar: convierte el ejemplo en una tarea de crontab y compara el resultado.</p></section>
+
+</div>
+<div class="nav"><button id="p">← Anterior</button><span id="c" class="mut"></span><button id="n">Siguiente →</button></div>
+<script>
+var s=document.querySelectorAll('.slide'),i=0;
+function go(k){i=Math.max(0,Math.min(s.length-1,k));s.forEach(function(e,j){e.classList.toggle('on',j===i)});s[i].scrollTop=0;document.getElementById('c').textContent=(i+1)+' / '+s.length}
+document.getElementById('p').onclick=function(){go(i-1)};
+document.getElementById('n').onclick=function(){go(i+1)};
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key===' ')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+document.querySelectorAll('pre').forEach(function(pr){
+  var b=document.createElement('button');b.className='cp';b.textContent='Copiar';
+  b.onclick=function(){
+    var c=pr.cloneNode(true);c.removeChild(c.querySelector('.cp'));var t=c.textContent;
+    var ok=function(){b.textContent='¡Copiado!';setTimeout(function(){b.textContent='Copiar'},1500)};
+    try{navigator.clipboard.writeText(t).then(ok,function(){fb(t);ok()})}catch(e){fb(t);ok()}
+  };
+  pr.appendChild(b);
+});
+function fb(t){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(a)}
+go(0);
+</script>
+</body></html>
